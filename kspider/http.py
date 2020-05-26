@@ -1,27 +1,8 @@
-from ast import literal_eval
+from kspider.commen import retry_wrapper
 from hashlib import md5
+from ast import literal_eval
 import lxml.etree as le
 import requests
-import time
-
-
-def retry_wrapper(max_retry_num=3, retry_delay=1, exception=True):
-    def wrapper1(func):
-        def wrapper2(*args, **kwargs):
-            this_for_num = max_retry_num - 1 if exception else max_retry_num
-            for i in range(this_for_num):
-                try:
-                    return func(*args, **kwargs)
-                except:
-                    time.sleep(retry_delay)
-            if exception:
-                return func(*args, **kwargs)
-            else:
-                return None
-
-        return wrapper2
-
-    return wrapper1
 
 
 def get_response(url, data=None, headers={}, method='GET', proxies=False, params=None, timeout=5, max_retry_num=3,
@@ -53,17 +34,6 @@ def get_response(url, data=None, headers={}, method='GET', proxies=False, params
         )
 
     return send()
-
-
-def build_request(request_str):
-    '''
-    :param req_data_str:
-    :return: request|None
-    '''
-    try:
-        return Request(**literal_eval(request_str))
-    except:
-        return None
 
 
 class Request():
@@ -128,6 +98,10 @@ class Request():
             retry_delay=retry_delay,
             exception=exception,
         )
+
+    @staticmethod
+    def build_request(request_str):
+        return Request(**literal_eval(request_str))
 
     def __str__(self):
         return self.to_str()

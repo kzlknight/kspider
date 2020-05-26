@@ -1,36 +1,36 @@
 from kspider.urls import norm_url,norm_index,get_host,check_host
 from kspider.http import Request,Response
-from kspider.settings import Settings as ST
+from kspider.settings import ScheduleSettings
 from hashlib import md5
 from ast import literal_eval
 import redis
 
 class Schedule():
-    def __init__(self,index,st=ST):
+    def __init__(self,index,st=ScheduleSettings):
 
         self.index = index
         self.host = get_host(self.index)
 
-        self.redis_conn = redis.StrictRedis(**st.Redis.conn)
+        self.redis_conn = redis.StrictRedis(**st.REDIS_CONN)
 
-        self.inner_requested_name = '%s:%s' % (index,st.Redis.inner_requested_name)
-        self.inner_requesting_name = '%s:%s' % (index,st.Redis.inner_requesting_name)
-        self.outer_requested_name = '%s:%s' % (index,st.Redis.outer_requested_name)
-        self.outer_requesting_name = '%s:%s' % (index,st.Redis.outer_requesting_name)
+        self.inner_requested_name = '%s:%s' % (index,st.REDIS_KEYNAME['inner_requested_name'])
+        self.inner_requesting_name = '%s:%s' % (index,st.REDIS_KEYNAME['inner_requesting_name'])
+        self.outer_requested_name = '%s:%s' % (index,st.REDIS_KEYNAME['outer_requested_name'])
+        self.outer_requesting_name = '%s:%s' % (index,st.REDIS_KEYNAME['outer_requesting_name'])
 
-        self.error_inner_requested_name = '%s:%s' % (index,st.Redis.error_inner_requested_name)
-        self.error_inner_requesting_name = '%s:%s' % (index,st.Redis.error_inner_requesting_name)
-        self.error_outer_requested_name = '%s:%s' % (index,st.Redis.error_outer_requested_name)
-        self.error_outer_requesting_name = '%s:%s' % (index,st.Redis.error_outer_requesting_name)
+        self.error_inner_requested_name = '%s:%s' % (index,st.REDIS_KEYNAME['error_inner_requested_name'])
+        self.error_inner_requesting_name = '%s:%s' % (index,st.REDIS_KEYNAME['error_inner_requesting_name'])
+        self.error_outer_requested_name = '%s:%s' % (index,st.REDIS_KEYNAME['error_outer_requested_name'])
+        self.error_outer_requesting_name = '%s:%s' % (index,st.REDIS_KEYNAME['error_outer_requesting_name'])
 
-        self.process_name = '%s:%s' % (index,st.Redis.process_name)
+        self.process_name = '%s:%s' % (index,st.REDIS_KEYNAME['process_name'])
 
 
     def __get(self,way,error=False):
         '''
         :param way: 'inner'|'outer'
         :param error: True|False
-        :return: dict|None
+        :return: request|None
         没有数据，返回None
         有数组，转成字典，失败返回None，成功返回dict
         '''
@@ -49,15 +49,19 @@ class Schedule():
                 this_requesting_name = self.inner_requesting_name
                 this_requested_name = self.inner_requested_name
 
-        req_data_str = self.redis_conn.spop(name=this_requesting_name)
-        if not req_data_str:return None
+        request_str = self.redis_conn.spop(name=this_requesting_name)
+        if not request_str:return None
         try:
-            kreq = build_kreq(req_data_str)
+            request = Request.build_request(request_str)
             self.redis_conn.sadd(
-                this_requested_name, kreq.to_md5()
+                this_requested_name, request.to_md5()
             )
-            return kreq
-        except: return None
+            return request
+        except Exception as e:
+            # ****************
+            print('e')
+            # ****************
+            return None
 
 
     def __put(self,kreq,way='right',rel='',dont_filter=False):
