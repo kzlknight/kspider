@@ -3,33 +3,10 @@ from threading import Thread
 from .settings import Settings as ST
 import requests
 import time
-
-
-
-
+from .krequest import *
+from .shedule import Schedule
 
 class Processer():
-    def send_request(
-            self, url, data=None, proxys=False, headers={}, params=None, method='GET', timeout=None, max_retry_num=None, **kwargs,
-    ):
-        timeout = timeout or self.ST.Request.timeout
-        max_retry_num = max_retry_num or self.ST.Request.max_retry_num
-        headers = headers or self.ST.Request.default_headers
-
-        try:
-            for i in range(max_retry_num - 1):
-                if method == 'GET':
-                    return requests.get(
-                        url=url,
-                        params=params,
-                        data=data,
-                        headers=headers,
-                        proxies={'http': proxys,'https': proxys} if proxys else None,
-                        timeout=timeout
-                    )
-                else:
-
-
     def __init__(
             self,
             spider,
@@ -42,6 +19,9 @@ class Processer():
 
         self.q_req = TQueue()
         self.q_rep = TQueue()
+
+        # todo index settings
+        self.schedule = Schedule(spider.index)
 
         self.excute_request_t_targets = []
         self.excute_response_t_targets = []
@@ -62,13 +42,18 @@ class Processer():
             excute_response_t.start()
 
         for data in self.spider.start_request():
+
             # todo 区分req与item
-            self.q_req.put(data)
+            # self.q_req.put(data)
+            self.schedule.put(kreq=data,)
 
     def excute_request(self):
         while True:
             kreq = self.q_req.get()
             if not kreq: break
+
+
+
 
     def excute_response(self):
         pass

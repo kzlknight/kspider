@@ -1,6 +1,3 @@
-from threading import Thread
-from queue import Queue
-# from .shedule import Kreq
 from ast import literal_eval
 from hashlib import md5
 import lxml.etree as le
@@ -15,7 +12,7 @@ def retry_wrapper(max_retry_num=3, retry_delay=1, exception=True):
             for i in range(this_for_num):
                 try:
                     return func(*args, **kwargs)
-                except Exception as e:
+                except:
                     time.sleep(retry_delay)
             if exception:
                 return func(*args, **kwargs)
@@ -50,19 +47,21 @@ def get_response(url, data=None, headers={}, method='GET', proxies=False, params
         else:
             this_proxies = None
 
-        return this_func(url=url, data=data, headers=headers, proxies=this_proxies, params=params, timeout=timeout,
-                         **kwargs)
+        return this_func(
+            url=url, data=data, headers=headers, proxies=this_proxies, params=params, timeout=timeout,
+            **kwargs
+        )
 
     return send()
 
 
-def build_request(req_data_str):
+def build_request(request_str):
     '''
     :param req_data_str:
-    :return: kreq|None
+    :return: request|None
     '''
     try:
-        return Request(**literal_eval(req_data_str))
+        return Request(**literal_eval(request_str))
     except:
         return None
 
@@ -76,7 +75,7 @@ class Request():
     errorback: object
 
     def __init__(
-            self, url: str, data: dict = None, rel='',headers: dict = None, method='GET', callback: object = None,
+            self, url: str, data: dict = None, rel='', headers: dict = None, method='GET', callback: object = None,
             errorback: object = None, meta={}
     ):
         self.url = url
@@ -136,8 +135,8 @@ class Request():
 
 class Response():
     def __init__(self, request, response):
-        self.request:Request = request
-        self.body:bytes = response.content
+        self.request: Request = request
+        self.body: bytes = response.content
 
     def xpath_one(self, path, content='', default=None):
         if not content:
@@ -161,25 +160,15 @@ class Response():
 
     def follow(
             self, url: str, data: dict = None, headers: dict = None, method='GET', callback: object = None,
-            errorback: object = None, meta={},rel='',
+            errorback: object = None, meta={}, rel='',
     ):
         return Request(
-            url = url,
+            url=url,
             data=data,
             headers=headers,
             method=method,
             callback=callback,
             errorback=errorback,
             meta=meta,
-            rel = rel if rel else self.request.rel
+            rel=rel if rel else self.request.rel
         )
-
-
-class Spider():
-    def __init__(self):
-        pass
-
-    def start_request(self):
-        pass
-
-

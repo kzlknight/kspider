@@ -146,12 +146,6 @@ class ProxyPool():
                 time.sleep(self.get_delay)
 
 
-
-
-
-
-
-
 if __name__ == '__main__':
     p = ProxyPool()
     print(p.redis_conn.srandmember('123',2))

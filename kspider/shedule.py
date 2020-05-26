@@ -1,91 +1,9 @@
-from core.url import norm_index,norm_url,get_host,check_host
+from kspider.urls import norm_url,norm_index,get_host,check_host
+from kspider.http import Request,Response
+from kspider.settings import Settings as ST
 from hashlib import md5
-from .settings import Settings as ST
 from ast import literal_eval
 import redis
-from .krequest import get_response
-
-
-
-def build_kreq(req_data_str):
-    '''
-    :param req_data_str:
-    :return: kreq|None
-    '''
-    try:
-        return Kreq(**literal_eval(req_data_str))
-    except:
-        return None
-class Kreq():
-    url:str
-    data:dict
-    header:dict
-    method:str
-    callback:object
-    errorback:object
-
-    def __init__(
-            self,url:str,data:dict=None,header:dict=None,method='GET',callback:object=None,errorback:object=None,
-    ):
-        self.url = url
-        self.data = data
-        self.header = header
-        self.callback = callback
-        self.errorback = errorback
-        self.method = method
-
-    def to_dict(self):
-        data = str(self.data) if self.data and type(self.data) == dict else ''
-        header = str(self.header) if self.header and type(self.header) == dict else ''
-        callback = str(self.callback.__name__) if self.callback else ''
-        errorback = str(self.errorback.__name__) if self.errorback else ''
-
-        return dict(
-            url=self.url,
-            data=data,
-            header=header,
-            method=self.method,
-            callback=callback,
-            errorback=errorback,
-        )
-
-    def to_str(self):
-        return str(self.to_dict())
-
-    def to_md5(self):
-        dict_data = self.to_dict()
-        return md5(
-            '{url}-{data}-{method}'.format(
-                url = dict_data['url'],
-                data = dict_data['data'],
-                method = dict_data['method'],
-            ).encode('utf-8')
-        ).hexdigest()
-
-    def send_request(self,proxies=None,max_retry_num=3,retry_delay=1,timeout=5,exception=False):
-        return get_response(
-            url = self.url,
-            data=self.data,
-            headers=self.header,
-            method=self.method,
-            proxies=proxies,
-            timeout=timeout,
-            max_retry_num=max_retry_num,
-            retry_delay=retry_delay,
-            exception=exception,
-        )
-
-
-    def __str__(self):
-        return self.to_str()
-
-def req_data_str_to_md5(url,data,method):
-    return md5(
-        '{url}{data}{method}'.format(
-            url = url,data=data,method=method,
-        ).encode('utf-8')
-    ).hexdigest()
-
 
 class Schedule():
     def __init__(self,index,st=ST):
