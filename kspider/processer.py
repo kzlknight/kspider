@@ -10,46 +10,55 @@ from queue import Queue
 class Processer():
     def __init__(
             self,
-            spider,
-            proxyPool = None,
-            scheduleSettings = ScheduleSettings,
-            processerSettings = ProcesserSettings,
+            spider, # 被实例化的爬虫
+            proxyPool = None, # 被实例化的IP池
+            scheduleSettings = ScheduleSettings, # 调度器的配置类
+            processerSettings = ProcesserSettings, # 执行器的配置类
     ):
+        # 爬虫类
         self.spider = spider
+        # 调度器
         self.schedule = Schedule(index=self.spider.index,st=scheduleSettings)
 
+        # 单词爬虫请求相关
+        self.__request_max_retry_num = processerSettings.REQUEST_RETRY['request_max_retry_num'] # 最大的尝试次数
+        self.__request_retry_delay = processerSettings.REQUEST_RETRY['request_retry_delay'] # 重试的延时
+        self.__request_timeout = processerSettings.REQUEST_RETRY['timeout'] # 超时最大值
 
-        self.__request_max_retry_num = processerSettings.REQUEST_RETRY['request_max_retry_num']
-        self.__request_retry_delay = processerSettings.REQUEST_RETRY['request_retry_delay']
-        self.__request_timeout = processerSettings.REQUEST_RETRY['timeout']
-
+        # 解析request与response线程对象的地址列表
         self.excute_request_thread_targets = []
         self.excute_response_thread_targets = []
 
-
+        # 生成解析request的线程对象
         for i in range(processerSettings.EXCUTE_THREAD['excute_request_thread_num']):
             self.excute_request_thread_targets.append(
                 Thread(target=self.excute_request)
             )
 
+        # 生成解析response的线程对象
         for i in range(processerSettings.EXCUTE_THREAD['excute_response_thread_num']):
             self.excute_response_thread_targets.append(
                 Thread(target=self.excute_response)
             )
 
+        # 代理IP池的管理
+        # 如果使用了代理IP池
         if proxyPool:
+            # 如果代理IP池没有开始更新，则自动开启
             if not proxyPool.is_alive:
                 proxyPool.run()
             self.proxies = proxyPool
         else:
             self.proxies = None
 
+        # 解析请求后交给处理响应的线程通信队列
         self.excute_response_queue = Queue()
 
+    # 处理请求
     def excute_request(self):
         while True:
-            request = self.schedule.get()
-            print(request)
+            # 得到request对象
+            request = self.schedule.get() # 堵车状态
             try:
                 request_response = request.get_response(
                     max_retry_num=self.__request_max_retry_num,

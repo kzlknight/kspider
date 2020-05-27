@@ -44,7 +44,7 @@ def get_response(
 class Request():
     def __init__(
             self, url: str, data: dict = None, headers: dict = None, method='GET', index='', rel='',
-            callback: object = None, errorback: object = None, meta={},
+            callback: object = None, errorback: object = None, meta={},dont_filter=False,
     ):
         self.url = url
         self.data = data
@@ -55,6 +55,7 @@ class Request():
         self.meta = meta
         self.rel = rel
         self.index = index
+        self.dont_filter = dont_filter
 
     # 转为字典
     def to_dict(self):

@@ -50,28 +50,29 @@ class Schedule():
             else:
                 this_requesting_name = self.inner_requesting_name
                 this_requested_name = self.inner_requested_name
+
+        # 如果不能得到正确的request对象，程序则会一直循环
         while True:
+            # 从Redis中的到request的字符串对象
             request_str = self.redis_conn.spop(name=this_requesting_name)
-            # ****
-            print(request_str)
-            # ****
+            # 如果没有request_str对象，延时，再次获取
             if not request_str:
                 time.sleep(self.spop_delay)
-            else: break
-        try:
-            print('*****')
-            request = Request.build_request(request_str)
-            print(request)
-            print('****')
-            self.redis_conn.sadd(
-                this_requested_name, request.to_md5()
-            )
-            return request
-        except Exception as e:
-            # ****************
-            print('e')
-            # ****************
-            return None
+                continue
+            try:
+                # 尝试通过request_str构造request类对象
+                request = Request.build_request(request_str)
+                # 标记已经请求
+                self.redis_conn.sadd(
+                    this_requested_name, request.to_md5()
+                )
+                # 返回request类对象
+                return request
+            except Exception as e:
+                # ****************
+                # 如果失败，一般是由于不能转成request，测试提示异常 【test】
+                print(e)
+                # ****************
 
 
     def __put(self,request,way='right',dont_filter=False):
