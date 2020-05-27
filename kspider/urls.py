@@ -1,6 +1,6 @@
 import re
 
-__all__ = ['norm_url','norm_index','get_host','check_host']
+# __all__ = ['norm_url','norm_index','get_host','check_host']
 
 url_pattern_https = re.compile(
     '^https://www\.\w{1,50}\.(com|cn|top|ltd|net|xin|vip|store|shop|wang|cloud|xyz|ren|tech|online|site|ink|link|love|art|fun|club|cc|website|press|space|beer|luxe|video|group|fit|yoga|com.cn|net.cn|org.cn|pro|biz|info|design|work|mobi|kim|pub|org|name|tv|co|asia|red|live|wiki|gov.cn|life|world|run|show|city|gold|today|plus|cool|icu).*$'

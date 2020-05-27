@@ -1,8 +1,10 @@
 from kspider.commen import retry_wrapper
+from kspider.urls import norm_url
 from hashlib import md5
 from ast import literal_eval
 import lxml.etree as le
 import requests
+import re
 
 
 def get_response(url, data=None, headers={}, method='GET', proxies=False, params=None, timeout=5, max_retry_num=3,
@@ -45,8 +47,8 @@ class Request():
     errorback: object
 
     def __init__(
-            self, url: str, data: dict = None, rel='', headers: dict = None, method='GET', callback: object = None,
-            errorback: object = None, meta={}
+            self, url: str, data: dict = None, rel='',index='', headers: dict = None, method='GET', callback: object = None,
+            errorback: object = None, meta={},
     ):
         self.url = url
         self.data = data
@@ -56,6 +58,7 @@ class Request():
         self.method = method
         self.meta = meta
         self.rel = rel
+        self.index= index
 
     def to_dict(self):
         data = str(self.data) if self.data and type(self.data) == dict else ''

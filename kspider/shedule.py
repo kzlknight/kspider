@@ -64,7 +64,7 @@ class Schedule():
             return None
 
 
-    def __put(self,kreq,way='right',rel='',dont_filter=False):
+    def __put(self,request,way='right',dont_filter=False):
         '''
         :param kreq: 请求对象
         :param way: 'right'|'error'
@@ -74,9 +74,9 @@ class Schedule():
         成功True，失败False
         '''
         # 规范化url
-        kreq.url = norm_url(kreq.url, index=self.index, rel=rel)
+        request.url = norm_url(url=request.url,index=self.index,rel=request.rel)
         # 得到url是否输入host
-        check_host_ret = check_host(kreq.url, self.host)
+        check_host_ret = check_host(request.url, self.host)
         # this_requesting_name 指向待请求
         # this_requested_name  指向已请求
         if way == 'error': # 如果异常
@@ -94,8 +94,8 @@ class Schedule():
                 this_requesting_name = self.outer_requesting_name
                 this_requested_name = self.outer_requested_name
         # 如果不拦截，或者未发送这个请求，返回True
-        if dont_filter or (not self.redis_conn.sismember(this_requested_name,kreq.to_md5())):
-            self.redis_conn.sadd(this_requesting_name,kreq.to_str())
+        if dont_filter or (not self.redis_conn.sismember(this_requested_name,request.to_md5())):
+            self.redis_conn.sadd(this_requesting_name,request.to_str())
             return True
         # 如果拦截，且已经发送了这个请求，返回False
         else:
@@ -116,19 +116,17 @@ class Schedule():
     def get_outer_error(self):
         return self.__get(way='outer',error=True)
 
-    def put_error(self,kreq,rel='',dont_filter=False):
+    def put_error(self,request,dont_filter=False):
         return self.__put(
-            kreq=kreq,
+            request=request,
             way='error',
-            rel=rel,
             dont_filter=dont_filter,
         )
 
-    def put(self,kreq,rel='',dont_filter=False):
+    def put(self,request,dont_filter=False):
         return self.__put(
-            kreq=kreq,
+            request=request,
             way='right',
-            rel=rel,
             dont_filter=dont_filter,
         )
 
