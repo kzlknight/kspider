@@ -1,4 +1,9 @@
 import time
+from lxml import etree
+
+
+def x_tostring(path,encoding='utf-8'):
+    return etree.tostring(path,encoding=encoding)
 
 
 def retry_wrapper(max_retry_num=3, retry_delay=1, exception=True):
