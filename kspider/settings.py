@@ -20,12 +20,14 @@ class ScheduleSettings():
         'error_outer_requesting_name': 'outer_error_requesting',
         'process_name': 'process',
     }
-
+    SPOP_DELAY = 0.5
 
 class ProcesserSettings():
     EXCUTE_THREAD = {
-        'excute_request_thread_num': 8,
-        'excute_response_thread_num': 2,
+        # 'excute_request_thread_num': 8,
+        # 'excute_response_thread_num': 2,
+        'excute_request_thread_num': 1,
+        'excute_response_thread_num': 1,
     }
     REQUEST_RETRY = {
         'request_max_retry_num': 3,

@@ -41,7 +41,7 @@ def get_response(url, data=None, headers={}, method='GET', proxies=False, params
 class Request():
     url: str
     data: dict
-    header: dict
+    headers: dict
     method: str
     callback: object
     errorback: object
@@ -62,14 +62,26 @@ class Request():
 
     def to_dict(self):
         data = str(self.data) if self.data and type(self.data) == dict else ''
-        headers = str(self.headers) if self.header and type(self.headers) == dict else ''
-        callback = str(self.callback.__name__) if self.callback else ''
-        errorback = str(self.errorback.__name__) if self.errorback else ''
+        headers = str(self.headers) if self.headers and type(self.headers) == dict else ''
+        if not self.callback:
+            callback = ''
+        elif type(self.callback) == str:
+            callback = self.callback
+        else:
+            callback = self.callback.__name__
+
+        if not self.errorback:
+            errorback = ''
+        elif type(self.errorback) == str:
+            errorback = self.errorback
+        else:
+            errorback = self.errorback.__name__
+
 
         return dict(
             url=self.url,
             data=data,
-            header=headers,
+            headers=headers,
             method=self.method,
             callback=callback,
             errorback=errorback,

@@ -4,6 +4,7 @@ from kspider.settings import ScheduleSettings
 from hashlib import md5
 from ast import literal_eval
 import redis
+import time
 
 class Schedule():
     def __init__(self,index,st=ScheduleSettings):
@@ -24,6 +25,7 @@ class Schedule():
         self.error_outer_requesting_name = '%s:%s' % (index,st.REDIS_KEYNAME['error_outer_requesting_name'])
 
         self.process_name = '%s:%s' % (index,st.REDIS_KEYNAME['process_name'])
+        self.spop_delay = st.SPOP_DELAY
 
 
     def __get(self,way,error=False):
@@ -48,11 +50,19 @@ class Schedule():
             else:
                 this_requesting_name = self.inner_requesting_name
                 this_requested_name = self.inner_requested_name
-
-        request_str = self.redis_conn.spop(name=this_requesting_name)
-        if not request_str:return None
+        while True:
+            request_str = self.redis_conn.spop(name=this_requesting_name)
+            # ****
+            print(request_str)
+            # ****
+            if not request_str:
+                time.sleep(self.spop_delay)
+            else: break
         try:
+            print('*****')
             request = Request.build_request(request_str)
+            print(request)
+            print('****')
             self.redis_conn.sadd(
                 this_requested_name, request.to_md5()
             )

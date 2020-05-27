@@ -21,7 +21,7 @@ class Processer():
 
         self.__request_max_retry_num = processerSettings.REQUEST_RETRY['request_max_retry_num']
         self.__request_retry_delay = processerSettings.REQUEST_RETRY['request_retry_delay']
-        self.__request_timeout = processerSettings.REQUEST_RETRY['timeou']
+        self.__request_timeout = processerSettings.REQUEST_RETRY['timeout']
 
         self.excute_request_thread_targets = []
         self.excute_response_thread_targets = []
@@ -49,6 +49,7 @@ class Processer():
     def excute_request(self):
         while True:
             request = self.schedule.get()
+            print(request)
             try:
                 request_response = request.get_response(
                     max_retry_num=self.__request_max_retry_num,
@@ -58,7 +59,8 @@ class Processer():
                 )
                 response = Response(request=request,response=request_response)
                 self.excute_response_queue.put(response)
-            except:
+            except Exception as e:
+                print(e)
                 # todo 拆分异常
                 self.schedule.put_error(request=request)
 
@@ -76,7 +78,7 @@ class Processer():
                 # ******************
 
     def run(self):
-        for request in self.spider.start_request:
+        for request in self.spider.start_request():
             self.schedule.put(request)
 
         for excute_request_thread_target in self.excute_request_thread_targets:
