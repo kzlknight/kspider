@@ -21,18 +21,22 @@ class ScheduleSettings():
         'process_name': 'process',
     }
 
+
 class ProcesserSettings():
     EXCUTE_THREAD = {
-        'excute_request_thread_num':8,
-        'excute_response_thread_num':2,
+        'excute_request_thread_num': 8,
+        'excute_response_thread_num': 2,
     }
     REQUEST_RETRY = {
-        'request_max_retry_num':3,
-        'request_retry_delay':1,
-        'timeout':5,
+        'request_max_retry_num': 3,
+        'request_retry_delay': 1,
+        'timeout': 5,
     }
 
+
 class ProxyPoolSettings():
+    # http/https接口地址
+    PROXY_URL = ''
     # Redis链接
     REDIS_CONN = {
         'host': 'localhost',
@@ -42,6 +46,18 @@ class ProxyPoolSettings():
         'encoding': 'utf-8',
         'decode_responses': True,
     }
-
-
+    # Redis中的键的名哦字
+    REDIS_KEYNAME_NAME = 'proxy'
+    DELAY = {
+        'flush_proxy_change': 2,
+        'flush_proxy_nochange': 1,
+        'error': '1',
+    }
+    SPLIT_CHAR = ','
+    REQUEST_RETRY = {
+        'request_max_retry_num': 3,
+        'request_retry_delay': 1,
+        'timeout': 5,
+    }
+    GET_DELAY = 0.5
 
