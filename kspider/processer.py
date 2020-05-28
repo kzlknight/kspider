@@ -170,7 +170,7 @@ class Processer():
         self.excute_run_thread_target.start()
 
 
-
+    # 关闭
     def close(self):
         for thread_target in self.excute_request_thread_targets:
             stop_thread(thread_target)

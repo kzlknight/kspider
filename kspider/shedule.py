@@ -146,6 +146,6 @@ class Schedule():
 
 if __name__ == '__main__':
     s = Schedule(index='https://www.baidu.com/')
-    kreq = Kreq(url ='/abc/qwe/aaawww/345678')
-    print(s.put(kreq))
+    request= Request(url ='/abc/qwe/aaawww/345678')
+    print(s.put(request))
     print(s.get_inner())
