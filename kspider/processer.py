@@ -15,6 +15,7 @@ import time
 2. 解析response失败，调用某个中间件
 3. download_middleware设置default header
 4. yield request|data data可以交给管道文件
+5. 关闭processer的条件，等待的时间
 '''
 
 class Processer():
@@ -102,8 +103,14 @@ class Processer():
             self.excute_response_thread_statements[statement_index] = 0
             # 得到response
             response = self.excute_response_queue.get()
+            if not response:break
             # 获得response，状态为1
             self.excute_response_thread_statements[statement_index] = 1
+            # # ***********
+            # while True:
+            #     print('response alive')
+            #     time.sleep(1)
+            # # ***********
             # 尝试执行回调函数
             try:
                 callback_func = eval('self.spider.{callback}'.format(callback=response.request.callback))
@@ -150,10 +157,10 @@ class Processer():
 
         # 验证是否执行完毕，如果执行完毕，跳出循环
         while True:
+            time.sleep(2)
             if check_excute():
                 break
 
-        # 关闭
         self.close()
 
 
@@ -163,14 +170,15 @@ class Processer():
         self.excute_run_thread_target.start()
 
 
+
     def close(self):
         for thread_target in self.excute_request_thread_targets:
             stop_thread(thread_target)
         for thread_target in self.excute_response_thread_targets:
-            stop_thread(thread_target)
+            self.excute_response_queue.put(None)
         try:
             stop_thread(self.excute_run_thread_target)
-        except:pass
+        except: pass
 
 
 

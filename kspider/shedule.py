@@ -135,6 +135,7 @@ class Schedule():
         )
 
     def put(self,request,dont_filter=False):
+        dont_filter = request.dont_filter or dont_filter
         return self.__put(
             request=request,
             way='right',

@@ -26,8 +26,8 @@ class ProcesserSettings():
     EXCUTE_THREAD = {
         # 'excute_request_thread_num': 8,
         # 'excute_response_thread_num': 2,
-        'excute_request_thread_num': 1,
-        'excute_response_thread_num': 1,
+        'excute_request_thread_num': 2,
+        'excute_response_thread_num': 2,
     }
     REQUEST_RETRY = {
         'request_max_retry_num': 3,
