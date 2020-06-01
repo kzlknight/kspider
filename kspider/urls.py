@@ -88,6 +88,7 @@ def check_host(url, host):
         return False
 
 
+'''
 if __name__ == '__main__':
     def test():
         url_suffixs = ['com', 'cn', 'top', 'ltd', 'net', 'xin', 'vip', 'store', 'shop', 'wang', 'cloud', 'xyz', 'ren',
@@ -161,3 +162,12 @@ if __name__ == '__main__':
                         print('对的没有匹配成功', url, pattern_key)
                     if pattern_key != url_key and ret:
                         print('把错的匹配成功了', url, pattern_key)
+'''
+
+if __name__ == '__main__':
+    url = norm_url(
+        url = '/#top',
+        index='https://www.sxglpx.com/',
+        rel='https://www.sxglpx.com/googleseo/',
+    )
+    print(url)

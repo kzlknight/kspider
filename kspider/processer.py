@@ -6,6 +6,7 @@ from kspider.pool import ProxyPool
 from kspider.http import Request,Response
 from threading import Thread
 from queue import Queue
+from collections import Iterable
 import time
 
 
@@ -16,6 +17,7 @@ import time
 3. download_middleware设置default header
 4. yield request|data data可以交给管道文件
 5. 关闭processer的条件，等待的时间
+6. xpath的tostring方法
 '''
 
 class Processer():
@@ -92,7 +94,10 @@ class Processer():
                 response = Response(request=request,response=request_response)
                 self.excute_response_queue.put(response)
             except Exception as e:
+                print('excute_request========')
+                print(request.url)
                 print(e)
+                print('excute_request========')
                 # todo 拆分异常
                 self.schedule.put_error(request=request)
 
@@ -114,12 +119,16 @@ class Processer():
             # 尝试执行回调函数
             try:
                 callback_func = eval('self.spider.{callback}'.format(callback=response.request.callback))
-                for request in callback_func(response):
-                    self.schedule.put(request)
+                gen_callback = callback_func(response)
+                if isinstance(gen_callback,Iterable):
+                    for request in callback_func(response):
+                        self.schedule.put(request)
             except Exception as e:
                 # ******************
                 # todo spider error
+                print('excute_response======')
                 print(e)
+                print('excute_response======')
                 # ******************
 
     def __run(self):
@@ -129,7 +138,9 @@ class Processer():
         except Exception as e:
             # **********
             # todo spider error
+            print('run_start_request=====')
             print(e)
+            print('run_start_request=====')
             # *********
 
         for excute_request_thread_target in self.excute_request_thread_targets:

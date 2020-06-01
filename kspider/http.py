@@ -153,8 +153,9 @@ class Response():
     # 返回request
     def follow(
             self, url: str, data: dict = None, headers: dict = None, method='GET', callback: object = None,
-            errorback: object = None, meta={}, rel='',
+            errorback: object = None, meta={}, rel='',dont_filter = False,
     ):
+        rel = rel if rel else self.request.url
         return Request(
             url=url,
             data=data,
@@ -163,5 +164,8 @@ class Response():
             callback=callback,
             errorback=errorback,
             meta=meta,
-            rel=rel if rel else self.request.rel
+            rel=rel,
+            dont_filter = dont_filter,
         )
+
+

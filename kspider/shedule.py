@@ -86,6 +86,9 @@ class Schedule():
         '''
         # 规范化url
         request.url = norm_url(url=request.url,index=self.index,rel=request.rel)
+        print('************************')
+        print('url',request.url,'index',self.index,'rel',request.rel)
+        print('**********************************************')
         # 得到url是否输入host
         check_host_ret = check_host(request.url, self.host)
         # this_requesting_name 指向待请求
@@ -106,6 +109,7 @@ class Schedule():
                 this_requested_name = self.outer_requested_name
         # 如果不拦截，或者未发送这个请求，返回True
         if dont_filter or (not self.redis_conn.sismember(this_requested_name,request.to_md5())):
+
             self.redis_conn.sadd(this_requesting_name,request.to_str())
             return True
         # 如果拦截，且已经发送了这个请求，返回False
